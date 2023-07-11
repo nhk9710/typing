@@ -29,8 +29,8 @@ const WORDWIDTH = 150;
 const WORDHEIGHT = 30;
 
 //단어 생성 옵션
-const DRAWTIME = 1500;
-const DOWNTIME = ref(500);
+const DRAWTIME = ref(1500);
+const DOWNTIME = ref(300);
 
 //목숨
 let life = ref(3);
@@ -80,7 +80,7 @@ function drawWords() {
     if(newObj.length === words.length){
       clearInterval(drawInterval);
     }
-  },DRAWTIME);
+  },DRAWTIME.value);
 }
 
 //words go down
@@ -130,7 +130,18 @@ function chkWords(e){
     gameWord.value = '';
   }
 }
-
+//난이도 증가
+function plusDiff(){
+  difficult.value ++;
+  DRAWTIME.value = DRAWTIME.value - 100;
+  DOWNTIME.value = DOWNTIME.value - 60;
+}
+//난이도 감소
+function minusDiff(){
+  difficult.value --;
+  DRAWTIME.value = DRAWTIME.value + 100;
+  DOWNTIME.value = DOWNTIME.value + 60;
+}
 function startGame(){
   gameCount.value = true;
   drawWords();
@@ -175,8 +186,8 @@ function restartGame(){
       <div style="display: flex; width: 90%; justify-content: space-around; margin: 0 auto">
         <div style="display: flex; align-items: center; width: 12%">
           <span style="margin-right: 5%" class="txtDomino">난이도 : {{ difficult }}</span>
-          <button class="txtDomino diffBtn" style="margin-right: 3%">+</button>
-          <button class="txtDomino diffBtn">-</button>
+          <button class="txtDomino diffBtn" @click="plusDiff"  :disabled="difficult===3" style="margin-right: 3%">+</button>
+          <button class="txtDomino diffBtn" @click="minusDiff" :disabled="difficult===1">-</button>
         </div>
       <button class="btnBox" @click="startGame">START</button>
       <button class="txtDomino diffBtn" @click="switchLanguage">{{ chkLang ? 'ENGLISH' : '한국어' }}</button>
