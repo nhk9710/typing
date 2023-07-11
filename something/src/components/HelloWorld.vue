@@ -56,15 +56,21 @@ function drawWords() {
   }
 
   let drawInterval = setInterval(function() {
-    let leftWidth = Math.round(Math.random() * 1200);
+    let leftWidth = Math.round(Math.random() * screen.availWidth);
     let wordDiv = document.createElement("div");
     wordDiv.style.width = WORDWIDTH + "px";
     wordDiv.style.height = WORDHEIGHT + "px";
     wordDiv.style.position = "absolute";
     wordDiv.style.textAlign = "center";
-    wordDiv.style.color = "#927a5d";
     wordDiv.style.fontSize = "1.5em"
     wordDiv.innerHTML = words[idx++];
+    if(wordDiv.innerHTML.length > 8){
+      wordDiv.style.color = "#ff0000";
+    }else if(wordDiv.innerHTML.length > 5){
+      wordDiv.style.color = "#ff4d00";
+    }else{
+      wordDiv.style.color = "#927a5d";
+    }
     wordContent.appendChild(wordDiv);
     if (leftWidth + WORDWIDTH >= wordContent.offsetWidth) {
       wordDiv.style.left = (leftWidth - WORDWIDTH) + "px";
@@ -117,8 +123,16 @@ function chkWords(e){
   if(e.keyCode === 13){
     for(let i=0; i< newObj.length; i++){
       if(gameWord.value === newObj[i].innerHTML){
-        wordContent.removeChild(newObj[i]);
-        score.value += 100;
+        if(newObj[i].innerHTML.length > 8){
+          wordContent.removeChild(newObj[i]);
+          score.value += 500;
+        }else if(newObj[i].innerHTML.length > 5){
+          wordContent.removeChild(newObj[i]);
+          score.value += 300;
+        }else{
+          wordContent.removeChild(newObj[i]);
+          score.value += 100;
+        }
 
         if(newObj.length === words.length){
           if(!wordContent.hasChildNodes()){
@@ -134,13 +148,13 @@ function chkWords(e){
 function plusDiff(){
   difficult.value ++;
   DRAWTIME.value = DRAWTIME.value - 100;
-  DOWNTIME.value = DOWNTIME.value - 60;
+  DOWNTIME.value = DOWNTIME.value - 40;
 }
 //난이도 감소
 function minusDiff(){
   difficult.value --;
   DRAWTIME.value = DRAWTIME.value + 100;
-  DOWNTIME.value = DOWNTIME.value + 60;
+  DOWNTIME.value = DOWNTIME.value + 40;
 }
 function startGame(){
   gameCount.value = true;
@@ -186,7 +200,7 @@ function restartGame(){
       <div style="display: flex; width: 90%; justify-content: space-around; margin: 0 auto">
         <div style="display: flex; align-items: center; width: 12%">
           <span style="margin-right: 5%" class="txtDomino">난이도 : {{ difficult }}</span>
-          <button class="txtDomino diffBtn" @click="plusDiff"  :disabled="difficult===3" style="margin-right: 3%">+</button>
+          <button class="txtDomino diffBtn" @click="plusDiff"  :disabled="difficult===5" style="margin-right: 3%">+</button>
           <button class="txtDomino diffBtn" @click="minusDiff" :disabled="difficult===1">-</button>
         </div>
       <button class="btnBox" @click="startGame">START</button>
