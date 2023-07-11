@@ -33,7 +33,7 @@ const DRAWTIME = ref(1500);
 const DOWNTIME = ref(300);
 
 //목숨
-let life = ref(3);
+let life = ref(4);
 //점수
 let score = ref(0);
 //남은 단어 수
@@ -43,7 +43,7 @@ let idx = 0;
 //난이도
 let difficult = ref(1);
 
-// words drawing
+// 단어 생성 함수
 function drawWords() {
   let randomText = 0;
   let tmp = null;
@@ -62,6 +62,7 @@ function drawWords() {
     wordDiv.style.height = WORDHEIGHT + "px";
     wordDiv.style.position = "absolute";
     wordDiv.style.textAlign = "center";
+    wordDiv.style.transitionDuration = "0.8s"
     wordDiv.style.fontSize = "1.5em"
     wordDiv.innerHTML = words[idx++];
     if(wordDiv.innerHTML.length > 8){
@@ -89,7 +90,7 @@ function drawWords() {
   },DRAWTIME.value);
 }
 
-//words go down
+//단어 내려오는 함수
 function wordDown(){
   let downInterval =
   setInterval(() => {
@@ -119,6 +120,7 @@ function wordDown(){
   }, DOWNTIME.value);
 }
 
+// 단어 입력후 엔터키 눌렀을때
 function chkWords(e){
   if(e.keyCode === 13){
     for(let i=0; i< newObj.length; i++){
@@ -178,7 +180,7 @@ function restartGame(){
 </script>
 
 <template>
-<div class="allBox">
+<div class="allBox" :style="`background: ${life===2 ? '#fabaa2' : life===1 ? '#ff9e9e' : ''}`">
   <div class="centerBox">
   <div class="infoBox">
     <div class="txtDomino">SCORE : {{ score }}</div>
@@ -193,7 +195,7 @@ function restartGame(){
     <button @click="restartGame">재도전</button>
   </div>
 
-  <div v-if="!gameOver" id="wordContent"></div>
+  <div v-if="!gameOver" id="wordContent" :style="`color: ${life===2 ? 'white' : life===1 ? 'white' : '#f8f0e8'}`"></div>
 
   <div class="centerBox">
     <template v-if="!gameCount">
@@ -272,5 +274,5 @@ function restartGame(){
   cursor: pointer;
 }
 .textBox:focus { outline: none}
-#wordContent{ width: 100%; height: 75%; position: relative; border-top: 3px solid #927a5d; border-bottom: 3px solid #927a5d}
+#wordContent{ width: 100%; height: 75%; position: relative; border-top: 3px solid #927a5d; border-bottom: 3px solid #927a5d; transition-duration: 0.5s}
 </style>
