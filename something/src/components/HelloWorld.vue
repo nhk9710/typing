@@ -2,7 +2,9 @@
 import {onMounted, ref} from 'vue'
 import data from '../words/data.json'
 
-const words = data.Korean;
+let words = data.Korean;
+//언어 체크
+const chkLang = ref(false)
 
 let newObj = [];
 
@@ -15,25 +17,31 @@ onMounted(() => {
   wordContent = document.getElementById('wordContent');
 })
 
+//게임 시작
 let gameCount = ref(false);
+//게임 종료
 let gameOver = ref(false);
 
 let gameWord = ref('');
 
-//world style
+//단어 크기
 const WORDWIDTH = 150;
 const WORDHEIGHT = 30;
 
-//draw
+//단어 생성 옵션
 const DRAWTIME = 1500;
-const DOWNTIME = 100;
+const DOWNTIME = ref(500);
 
-//life
+//목숨
 let life = ref(3);
-//score
+//점수
 let score = ref(0);
+//남은 단어 수
+let wordCount = ref(words.length);
 // words index
 let idx = 0;
+//난이도
+let difficult = ref(1);
 
 // words drawing
 function drawWords() {
@@ -64,6 +72,11 @@ function drawWords() {
       wordDiv.style.left = leftWidth + "px";
     }
     newObj.push(wordDiv);
+    wordCount.value -- ;
+    if(life.value===0){
+      clearInterval(drawInterval);
+      gameOver.value = true;
+    }
     if(newObj.length === words.length){
       clearInterval(drawInterval);
     }
@@ -72,6 +85,7 @@ function drawWords() {
 
 //words go down
 function wordDown(){
+  let downInterval =
   setInterval(() => {
     for(let i=0; i< words.length; i++){
       if(i < newObj.length){
@@ -82,11 +96,12 @@ function wordDown(){
             life.value--;
 
             if(life.value ===0){
+              clearInterval(downInterval)
               gameOver.value = true;
-
             }
             if(newObj.length === words.length){
               if(!wordContent.hasChildNodes()){
+                clearInterval(downInterval)
                 gameOver.value = true;
               }
             }
@@ -95,7 +110,7 @@ function wordDown(){
         plusTop[i] += 30;
         }
     }
-  }, DOWNTIME);
+  }, DOWNTIME.value);
 }
 
 function chkWords(e){
@@ -121,6 +136,20 @@ function startGame(){
   drawWords();
   wordDown();
 }
+function switchLanguage(){
+  if(chkLang.value===false){
+    words = data.English;
+    chkLang.value = true;
+  }else{
+    words = data.Korean;
+    chkLang.value = false
+  }
+}
+
+//게임 재시작
+function restartGame(){
+  location.reload();
+}
 </script>
 
 <template>
@@ -128,15 +157,34 @@ function startGame(){
   <div class="centerBox">
   <div class="infoBox">
     <div class="txtDomino">SCORE : {{ score }}</div>
+    <div class="txtDomino">남은 단어 : {{ wordCount }}</div>
     <div class="txtDomino">LIFE : {{ life }}</div>
   </div>
   </div>
 
-  <div id="wordContent"></div>
+  <!-- 게임이 종료되었을때 화면 -->
+  <div v-if="gameOver">
+    <p>게임 종료!</p>
+    <button @click="restartGame">재도전</button>
+  </div>
+
+  <div v-if="!gameOver" id="wordContent"></div>
 
   <div class="centerBox">
-    <button v-if="!gameCount" class="btnBox" @click="startGame">START</button>
-  <input v-else class="textBox" @keydown="(e) => chkWords(e)" type="text" v-model="gameWord">
+    <template v-if="!gameCount">
+      <div style="display: flex; width: 90%; justify-content: space-around; margin: 0 auto">
+        <div style="display: flex; align-items: center; width: 12%">
+          <span style="margin-right: 5%" class="txtDomino">난이도 : {{ difficult }}</span>
+          <button class="txtDomino diffBtn" style="margin-right: 3%">+</button>
+          <button class="txtDomino diffBtn">-</button>
+        </div>
+      <button class="btnBox" @click="startGame">START</button>
+      <button class="txtDomino diffBtn" @click="switchLanguage">{{ chkLang ? 'ENGLISH' : '한국어' }}</button>
+      </div>
+    </template>
+    <template v-else>
+      <input class="textBox" @keydown="(e) => chkWords(e)" type="text" v-model="gameWord">
+    </template>
   </div>
 </div>
 </template>
@@ -160,11 +208,6 @@ function startGame(){
   justify-content: space-between;
   margin: 0 auto;
   width: 90%;
-}
-.separator{
-  width: 100%;
-  height: 10%;
-  background: #e8ded3;
 }
 .txtDomino{
   color: #927a5d;
@@ -197,6 +240,11 @@ function startGame(){
   background: #d5c5b9;
   margin: 0 auto;
   border-radius: 10px;
+}
+.diffBtn{
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 .textBox:focus { outline: none}
 #wordContent{ width: 100%; height: 75%; position: relative; border-top: 3px solid #927a5d; border-bottom: 3px solid #927a5d}
